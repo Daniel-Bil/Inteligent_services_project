@@ -51,7 +51,7 @@ def save_article():
 
 if __name__ == '__main__':
     save_path = f'./pages'
-    number_of_pages=1000
+    number_of_pages=10
     article_title = "Python (programming language)"
     wikipedia(article_title)
     titles = []
