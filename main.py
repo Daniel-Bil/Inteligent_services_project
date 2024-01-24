@@ -13,11 +13,6 @@ class VectorType:
     OneHotEncoding = 0
     Histogram = 1
 
-
-
-
-
-
 def create_vectors(files, key_in_dictionary, operation_type=1):
 
     vectors = []
@@ -49,6 +44,28 @@ def create_vectors(files, key_in_dictionary, operation_type=1):
 
     return vectors
 
+
+def group_articles_based_on_prediction(files, prediction, number_of_categories):
+    directory_name = f'./pages'
+    articles_grouped = [[] for i in range(number_of_categories)]
+
+    files_path_to_index = []
+
+    for i, file_name in enumerate(files):
+        path = f"{directory_name}/{file_name}"
+        files_path_to_index.append(path)
+
+    for i in range(len(prediction)):
+        index_of_group = prediction[i]
+
+        with open(files_path_to_index[i], "r") as file:
+            d = json.load(file)
+
+        articles_grouped[index_of_group].append(d)
+
+    return articles_grouped
+
+
 if __name__ == '__main__':
     files_path = f'./pages'
     files = os.listdir(files_path)
@@ -57,11 +74,13 @@ if __name__ == '__main__':
     vectors = create_vectors(files, "Summary", 1)
     vectors = np.array(vectors)
 
-
-
     # np.save("./vectors.npz", vectors)
     preds = classify(vectors, 0)
+
     print(preds[:10])
+
+    res = group_articles_based_on_prediction(files, preds, 10)
+
 
 
 
