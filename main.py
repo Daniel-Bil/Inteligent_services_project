@@ -8,56 +8,59 @@ from classificator import classify
 
 pattern = r'\b\w+\b'
 
-if __name__ == '__main__':
-    files_path = f'./pages'
-    files = os.listdir(files_path)
-    all_words = []
-    # for file_name in files:
-    #     path = f"{files_path}/{file_name}"
-    #     try:
-    #         with open(path, "r") as file:
-    #             d = json.load(file)
-    #
-    #
-    #
-    #         words = list(set([word.lower() for word in re.findall(pattern, d["Summary"])]))
-    #         print(len(words), words)
-    #         all_words = all_words + words
-    #     except:
-    #         print("ERROR", file_name)
-            # os.remove(path)
 
-    # with open("./dictionary","w") as f:
-    #     json.dump(list(set(all_words)), f, indent=4)
+class VectorType:
+    OneHotEncoding = 0
+    Histogram = 1
+
+
+
+
+
+
+def create_vectors(files, key_in_dictionary, operation_type=1):
+
+    vectors = []
 
     with open("./dictionary","r") as f:
         ff = json.load(f)
-    print(len(ff))
-    vectors = []
+
     for file_name in files:
         path = f"{files_path}/{file_name}"
-        print(file_name)
         try:
             with open(path, "r") as file:
                 d = json.load(file)
 
-            words = [w.lower() for w in re.findall(pattern, d["Summary"])]
+            words = [w.lower() for w in re.findall(pattern, d[key_in_dictionary])]
             bov = np.zeros(len(ff))
             for word in words:
                 id = ff.index(word)
-                bov[id]+=1
-            vectors.append(bov)
+                bov[id] += 1
 
+            if operation_type == VectorType.OneHotEncoding:
+               for i in range(len(bov)):
+                   if bov[i] > 1:
+                       bov[i] = 1
+
+            vectors.append(bov)
 
         except:
             print("ERROR", file_name)
-            raise Exception("jebac pis")
-    for i in range(50):
-        print(len(vectors[i]))
-        print(sum(vectors[i]))
+
+    return vectors
+
+if __name__ == '__main__':
+    files_path = f'./pages'
+    files = os.listdir(files_path)
+    all_words = []
+
+    vectors = create_vectors(files, "Summary", 1)
     vectors = np.array(vectors)
-    np.save("./vectors.npz", vectors)
-    preds = classify(vectors,0)
+
+
+
+    # np.save("./vectors.npz", vectors)
+    preds = classify(vectors, 0)
     print(preds[:10])
 
 
