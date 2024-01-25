@@ -1,8 +1,10 @@
 import json
 import os
 import re
-
+import networkx as nx
+import matplotlib.pyplot as plt
 import numpy as np
+from matplotlib.lines import Line2D
 
 from classificator import classify
 
@@ -65,10 +67,45 @@ def group_articles_based_on_prediction(files, prediction, number_of_categories):
 
     return articles_grouped
 
+def plot_graph(files, number_of_categories):
+    G = nx.Graph()
+
+    for i in range(number_of_categories):
+        G.add_node(f"Cluster{i}", type='category')
+
+    for i, file_name in enumerate(files):
+        category_index = preds[i]
+        G.add_node(file_name, type='article')
+        G.add_edge(file_name, f"Cluster_{category_index}")
+
+    color_map = []
+    for node in G:
+        if G.nodes[node]['type'] == 'article':
+            color_map.append('skyblue')
+        else:
+            color_map.append('lightgreen')
+
+    pos = nx.spring_layout(G, k=0.5, iterations=100)
+
+    nx.draw_networkx_nodes(G, pos, node_color=color_map, node_size=100)
+
+    nx.draw_networkx_edges(G, pos, edge_color='black', style='dashed')
+
+    label_pos = {k: [v[0], v[1] + 0.1] for k, v in pos.items()}
+
+    not_category_labels = {node: node for node in G.nodes if G.nodes[node]['type'] != 'category'}
+    nx.draw_networkx_labels(G, pos, labels=not_category_labels, font_weight="bold", font_size=4)
+    category_labels = {node: node for node in G.nodes if G.nodes[node]['type'] == 'category'}
+    nx.draw_networkx_labels(G, label_pos, labels=category_labels, font_weight='bold', font_color='red', font_size=10)
+
+    plt.figure(figsize=(12, 8))
+    plt.axis('off')
+    plt.show()
+
 
 if __name__ == '__main__':
     files_path = f'./pages'
-    files = os.listdir(files_path)
+    files = os.listdir(files_path)[:25]
     all_words = []
 
     vectors = create_vectors(files, "Summary", 1)
@@ -80,6 +117,10 @@ if __name__ == '__main__':
     print(preds[:10])
 
     res = group_articles_based_on_prediction(files, preds, 10)
+
+
+    plot_graph(files, 10)
+
 
 
 
