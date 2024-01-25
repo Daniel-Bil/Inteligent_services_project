@@ -10,9 +10,9 @@ class AlgorithmType(Enum):
 def classify(data, alg=0):
     print("classify")
     if alg == AlgorithmType.KMeans:
-        classifier = KMeans(n_clusters=25)
+        classifier = KMeans(n_clusters=10)
     elif alg == AlgorithmType.AgglomerativeClustering:
-        classifier = AgglomerativeClustering(n_clusters=25, affinity='euclidean', linkage='ward')
+        classifier = AgglomerativeClustering(n_clusters=10, affinity='euclidean', linkage='ward')
         classifier.fit(data)
         return classifier.labels_
     elif alg == AlgorithmType.GaussianN:
