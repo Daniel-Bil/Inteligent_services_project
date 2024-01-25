@@ -4,9 +4,11 @@ import re
 import networkx as nx
 import matplotlib.pyplot as plt
 import numpy as np
+from scipy.cluster.hierarchy import dendrogram, linkage
 from matplotlib.lines import Line2D
+from sklearn.decomposition import PCA
 
-from classificator import classify
+from classificator import classify, AlgorithmType
 
 pattern = r'\b\w+\b'
 
@@ -76,7 +78,7 @@ def plot_graph(files, number_of_categories):
     for i, file_name in enumerate(files):
         category_index = preds[i]
         G.add_node(file_name, type='article')
-        G.add_edge(file_name, f"Cluster_{category_index}")
+        G.add_edge(file_name, f"Cluster{category_index}")
 
     color_map = []
     for node in G:
@@ -103,23 +105,49 @@ def plot_graph(files, number_of_categories):
     plt.show()
 
 
+def show_dendogram(vectors, cluster_labels):
+    Z = linkage(vectors, method='ward')
+
+    labels = ['{}-{}'.format(i, label) for i, label in enumerate(cluster_labels)]
+
+    plt.figure(figsize=(20,20))
+    plt.title('Hierarchical Clustering Dendrogram')
+    plt.xlabel('Sample index or (Cluster size)')
+    plt.ylabel('Distance')
+    dendrogram(
+        Z,
+        labels=np.array(labels),
+        leaf_rotation=90.,
+        leaf_font_size=12,
+    )
+
+    plt.tight_layout()
+    plt.show()
+
+
 if __name__ == '__main__':
     files_path = f'./pages'
-    files = os.listdir(files_path)[:25]
+    files = os.listdir(files_path)[:10]
     all_words = []
 
     vectors = create_vectors(files, "Summary", 1)
     vectors = np.array(vectors)
 
     # np.save("./vectors.npz", vectors)
-    preds = classify(vectors, 0)
 
-    print(preds[:10])
+    preds = classify(vectors, AlgorithmType.AgglomerativeClustering)
+    show_dendogram(vectors, preds)
+
+    preds = classify(vectors, AlgorithmType.KMeans)
+    plot_graph(files, 10)
+
+
+    print(preds[:25])
+
 
     res = group_articles_based_on_prediction(files, preds, 10)
 
 
-    plot_graph(files, 10)
 
 
 
