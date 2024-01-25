@@ -113,7 +113,7 @@ def show_dendogram(vectors, cluster_labels):
 
     labels = ['{}-{}'.format(i, label) for i, label in enumerate(cluster_labels)]
 
-    plt.figure(figsize=(20,20))
+    plt.figure(figsize=(20, 20))
     plt.title('Hierarchical Clustering Dendrogram')
     plt.xlabel('Sample index or (Cluster size)')
     plt.ylabel('Distance')
@@ -132,7 +132,7 @@ if __name__ == '__main__':
     nltk.download('stopwords')
 
     files_path = f'./pages'
-    files = os.listdir(files_path)[:10]
+    files = os.listdir(files_path)
     all_words = []
 
     vectors = create_vectors(files, "Summary", 1)
@@ -144,13 +144,13 @@ if __name__ == '__main__':
     show_dendogram(vectors, preds)
 
     preds = classify(vectors, AlgorithmType.KMeans)
-    plot_graph(files, 10)
+    plot_graph(files, 25)
 
 
-    print(preds[:25])
+    print(preds[:1000])
 
 
-    res = group_articles_based_on_prediction(files, preds, 10)
+    res = group_articles_based_on_prediction(files, preds, 25)
 
 
 
