@@ -7,6 +7,8 @@ import numpy as np
 from scipy.cluster.hierarchy import dendrogram, linkage
 from matplotlib.lines import Line2D
 from sklearn.decomposition import PCA
+import nltk
+from nltk.corpus import stopwords
 
 from classificator import classify, AlgorithmType
 
@@ -30,7 +32,8 @@ def create_vectors(files, key_in_dictionary, operation_type=1):
             with open(path, "r") as file:
                 d = json.load(file)
 
-            words = [w.lower() for w in re.findall(pattern, d[key_in_dictionary])]
+            stop_words = set(stopwords.words('english'))
+            words = [w.lower() for w in re.findall(pattern, d[key_in_dictionary]) if w.lower() not in stop_words]
             bov = np.zeros(len(ff))
             for word in words:
                 id = ff.index(word)
@@ -126,6 +129,8 @@ def show_dendogram(vectors, cluster_labels):
 
 
 if __name__ == '__main__':
+    nltk.download('stopwords')
+
     files_path = f'./pages'
     files = os.listdir(files_path)[:10]
     all_words = []
