@@ -4,6 +4,7 @@ import re
 import networkx as nx
 import matplotlib.pyplot as plt
 import numpy as np
+import random
 from scipy.cluster.hierarchy import dendrogram, linkage
 from matplotlib.lines import Line2D
 from sklearn.decomposition import PCA
@@ -92,7 +93,7 @@ def plot_graph(files, number_of_categories):
 
     pos = nx.spring_layout(G, k=0.5, iterations=100)
 
-    nx.draw_networkx_nodes(G, pos, node_color=color_map, node_size=100)
+    nx.draw_networkx_nodes(G, pos, node_color=color_map, node_size=50)
 
     nx.draw_networkx_edges(G, pos, edge_color='black', style='dashed')
 
@@ -119,9 +120,10 @@ def show_dendogram(vectors, cluster_labels):
     plt.ylabel('Distance')
     dendrogram(
         Z,
+        truncate_mode='lastp',
         labels=np.array(labels),
-        leaf_rotation=90.,
         leaf_font_size=12,
+        show_contracted=True,
     )
 
     plt.tight_layout()
@@ -132,7 +134,13 @@ if __name__ == '__main__':
     nltk.download('stopwords')
 
     files_path = f'./pages'
+
     files = os.listdir(files_path)
+
+    num_files_to_select = 100
+
+    files = random.sample(files, min(num_files_to_select, len(files)))
+
     all_words = []
 
     vectors = create_vectors(files, "Summary", 1)
@@ -147,10 +155,10 @@ if __name__ == '__main__':
     plot_graph(files, 25)
 
 
-    print(preds[:1000])
+    print(preds[:100])
 
 
-    res = group_articles_based_on_prediction(files, preds, 25)
+    res = group_articles_based_on_prediction(files, preds, 10)
 
 
 
