@@ -34,7 +34,8 @@ def create_vectors(files, key_in_dictionary, operation_type=1):
                 d = json.load(file)
 
             stop_words = set(stopwords.words('english'))
-            words = [w.lower() for w in re.findall(pattern, d[key_in_dictionary]) if w.lower() not in stop_words]
+            words = [w.lower() for w in re.findall(pattern, d[key_in_dictionary])]
+            #words = [w.lower() for w in re.findall(pattern, d[key_in_dictionary]) if w.lower() not in stop_words]
             bov = np.zeros(len(ff))
             for word in words:
                 id = ff.index(word)
@@ -136,8 +137,9 @@ if __name__ == '__main__':
 
     files = os.listdir(files_path)
 
-    num_files_to_select = 300
+    num_files_to_select = 500
 
+    random.shuffle(files)
     files = random.sample(files, min(num_files_to_select, len(files)))
 
     all_words = []
@@ -153,12 +155,16 @@ if __name__ == '__main__':
     preds = classify(vectors, AlgorithmType.KMeans)
     plot_graph(files, 10)
 
-
-    print(preds[:100])
-
-
     res = group_articles_based_on_prediction(files, preds, 10)
 
+    vectors = create_vectors(files, "Summary", 0)
+    vectors = np.array(vectors)
+
+    preds = classify(vectors, AlgorithmType.AgglomerativeClustering)
+    show_dendogram(vectors, preds)
+
+    preds = classify(vectors, AlgorithmType.KMeans)
+    plot_graph(files, 10)
 
 
 
