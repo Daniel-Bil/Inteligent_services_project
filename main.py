@@ -76,52 +76,41 @@ def group_articles_based_on_prediction(files, prediction, number_of_categories):
 def plot_graph(files, number_of_categories):
     G = nx.Graph()
 
-    # Prepare a list of distinct colors, one for each category
     distinct_colors = plt.cm.get_cmap('tab20', number_of_categories)
 
-    # Add category nodes with distinct colors
     for i in range(number_of_categories):
         G.add_node(f"Cluster{i}", type='category', color=distinct_colors(i), size=300)
 
-    # Add article nodes and connect them to their respective category
     for i, file_name in enumerate(files):
         category_index = preds[i]
         G.add_node(file_name, type='article', color=distinct_colors(category_index), size=50)
         G.add_edge(file_name, f"Cluster{category_index}", weight=1)
 
-    # Generate a color map and size list
     color_map = [G.nodes[node]['color'] for node in G]
     size_list = [G.nodes[node]['size'] for node in G]
 
-    # Generate positions for each node
     pos = nx.spring_layout(G, k=0.5, iterations=100)
 
-    # Draw the nodes with the color map and size list
     nx.draw_networkx_nodes(G, pos, node_color=color_map, node_size=size_list)
 
-    # Draw the edges with varying thickness
     edges = G.edges()
     weights = [G[u][v]['weight'] for u, v in edges]
     nx.draw_networkx_edges(G, pos, width=weights)
 
-    # Draw labels for categories only
     category_labels = {node: node for node in G.nodes if G.nodes[node]['type'] == 'category'}
     nx.draw_networkx_labels(G, pos, labels=category_labels, font_size=10)
 
-    # Set the plot size
     plt.figure(figsize=(12, 8))
 
-    # Turn off the axis
     plt.axis('off')
 
-    # Show the plot
     plt.show()
 
 
 def show_dendogram(vectors, cluster_labels):
     Z = linkage(vectors, method='ward')
 
-    labels = [f"Cluster {label}" for i, label in enumerate(cluster_labels)]
+    labels = [f"{label}" for i, label in enumerate(cluster_labels)]
 
     plt.figure(figsize=(25, 10))
     plt.title('Hierarchical Clustering Dendrogram')
